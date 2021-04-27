@@ -265,11 +265,7 @@ namespace UnityEngine.Rendering.Universal
             switch (type)
             {
                 case RendererType.ForwardRenderer:
-                    return CreateInstance<ForwardRendererData>();
-                // 2D renderer is experimental
-                case RendererType._2DRenderer:
-                    return CreateInstance<Experimental.Rendering.Universal.Renderer2DData>();
-                // Forward Renderer is the fallback renderer that works on all platforms
+                    return CreateInstance<ForwardRendererData>();     
                 default:
                     return CreateInstance<ForwardRendererData>();
             }
