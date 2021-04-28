@@ -17,7 +17,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
         public class RenderObjectsSettings
         {
             public string passTag = "RenderObjectsFeature";
-            public RenderPassEvent Event = RenderPassEvent.AfterRenderingOpaques;
+            public RenderPassEvent Event = RenderPassEvent.AfterRenderingOpaques; // 比如 普通的Opaque物体,属于这个Opaque block区域
 
             public FilterSettings filterSettings = new FilterSettings();
 

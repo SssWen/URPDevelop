@@ -346,7 +346,7 @@ namespace UnityEngine.Rendering.Universal
                 return null;
             }
 
-            CreateRenderers();
+            CreateRenderers(); // 创建Pipeline的时候,创建pass流程
             return new UniversalRenderPipeline(this);
         }
 

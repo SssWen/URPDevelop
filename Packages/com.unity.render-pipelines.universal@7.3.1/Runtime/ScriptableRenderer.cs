@@ -94,6 +94,9 @@ namespace UnityEngine.Rendering.Universal
         /// </summary>
         public RenderingFeatures supportedRenderingFeatures { get; set; } = new RenderingFeatures();
 
+        /// <summary>
+        /// 总共4个block
+        /// </summary>
         static class RenderPassBlock
         {
             // Executes render passes that are inputs to the main rendering
@@ -229,6 +232,7 @@ namespace UnityEngine.Rendering.Universal
 
         /// <summary>
         /// Execute the enqueued render passes. This automatically handles editor and stereo rendering.
+        /// 执行block内pass, Opaque Block,Transparent Block
         /// </summary>
         /// <param name="context">Use this render context to issue any draw commands during execution.</param>
         /// <param name="renderingData">Current render state information.</param>
@@ -244,7 +248,7 @@ namespace UnityEngine.Rendering.Universal
             cmd.Clear();
             
             // Sort the render pass queue
-            SortStable(m_ActiveRenderPassQueue);
+            SortStable(m_ActiveRenderPassQueue); // 
 
             // Cache the time for after the call to `SetupCameraProperties` and set the time variables in shader
             // For now we set the time variables per camera, as we plan to remove `SetupCamearProperties`.
@@ -262,7 +266,7 @@ namespace UnityEngine.Rendering.Universal
             // Upper limits for each block. Each block will contains render passes with events below the limit.
             NativeArray<RenderPassEvent> blockEventLimits = new NativeArray<RenderPassEvent>(k_RenderPassBlockCount, Allocator.Temp);
             blockEventLimits[RenderPassBlock.BeforeRendering] = RenderPassEvent.BeforeRenderingPrepasses;
-            blockEventLimits[RenderPassBlock.MainRenderingOpaque] = RenderPassEvent.AfterRenderingOpaques;
+            blockEventLimits[RenderPassBlock.MainRenderingOpaque] = RenderPassEvent.AfterRenderingOpaques; // RenderObject,普通的不透明物体block
             blockEventLimits[RenderPassBlock.MainRenderingTransparent] = RenderPassEvent.AfterRenderingPostProcessing;
             blockEventLimits[RenderPassBlock.AfterRendering] = (RenderPassEvent)Int32.MaxValue;
 
@@ -323,10 +327,10 @@ namespace UnityEngine.Rendering.Universal
 
             // In the opaque and transparent blocks the main rendering executes.
 
-            // Opaque blocks...
+            // Opaque blocks...不透明block Pass, 根据RenderPassEvent.AfterRenderingOpaques;来判断block 合集.本质上是相同的 RenderPassEvent标记
             ExecuteBlock(RenderPassBlock.MainRenderingOpaque, blockRanges, context, ref renderingData, eyeIndex);
 
-            // Transparent blocks...
+            // Transparent blocks... 透明block Pass
             ExecuteBlock(RenderPassBlock.MainRenderingTransparent, blockRanges, context, ref renderingData, eyeIndex);
 
             // Draw Gizmos...
@@ -347,7 +351,7 @@ namespace UnityEngine.Rendering.Universal
         }
 
         /// <summary>
-        /// Enqueues a render pass for execution.
+        /// Enqueues a render pass for execution. 添加pass.入队.
         /// </summary>
         /// <param name="pass">Render pass to be enqueued.</param>
         public void EnqueuePass(ScriptableRenderPass pass)
@@ -463,6 +467,15 @@ namespace UnityEngine.Rendering.Universal
             m_CameraDepthTarget = BuiltinRenderTextureType.CameraTarget;
         }
 
+        /// <summary>
+        /// 将Block内的pass 全部执行完全.
+        /// </summary>
+        /// <param name="blockIndex"></param>
+        /// <param name="blockRanges"></param>
+        /// <param name="context"></param>
+        /// <param name="renderingData"></param>
+        /// <param name="eyeIndex"></param>
+        /// <param name="submit"></param>
         void ExecuteBlock(int blockIndex, NativeArray<int> blockRanges,
             ScriptableRenderContext context, ref RenderingData renderingData, int eyeIndex = 0, bool submit = false)
         {
@@ -669,7 +682,7 @@ namespace UnityEngine.Rendering.Universal
                 XRUtils.DrawOcclusionMesh(cmd, camera);
             }
 
-            renderPass.Execute(context, ref renderingData);
+            renderPass.Execute(context, ref renderingData); // 执行具体pass,如skybox pass.
         }
 
         void BeginXRRendering(ScriptableRenderContext context, Camera camera, int eyeIndex)

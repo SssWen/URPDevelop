@@ -197,8 +197,14 @@ namespace UnityEngine.Rendering.Universal
         }
 #endif
 
+        /// <summary>
+        /// URP管线入口
+        /// </summary>
+        /// <param name="renderContext"></param>
+        /// <param name="cameras"></param>
         protected override void Render(ScriptableRenderContext renderContext, Camera[] cameras)
         {
+            #region FrameRendering
             BeginFrameRendering(renderContext, cameras);
 
             GraphicsSettings.lightsUseLinearIntensity = (QualitySettings.activeColorSpace == ColorSpace.Linear);
@@ -233,6 +239,7 @@ namespace UnityEngine.Rendering.Universal
             }
 
             EndFrameRendering(renderContext, cameras);
+            #endregion
         }
 
         /// <summary>
@@ -260,6 +267,7 @@ namespace UnityEngine.Rendering.Universal
 
         /// <summary>
         /// Renders a single camera. This method will do culling, setup and execution of the renderer.
+        /// 渲染一个相机,将会进行Culling, 设置shader中矩阵等常量, Renderer.Execute.
         /// </summary>
         /// <param name="context">Render context used to record commands during execution.</param>
         /// <param name="cameraData">Camera rendering data. This might contain data inherited from a base camera.</param>
@@ -278,7 +286,7 @@ namespace UnityEngine.Rendering.Universal
             if (!camera.TryGetCullingParameters(IsStereoEnabled(camera), out var cullingParameters))
                 return;
 
-            SetupPerCameraShaderConstants(cameraData);
+            SetupPerCameraShaderConstants(cameraData);// 设置每个相机的矩阵常量V,VP,CmaerPos等shader中内置的常量.
 
             ProfilingSampler sampler = (asset.debugLevel >= PipelineDebugLevel.Profiling) ? new ProfilingSampler(camera.name): _CameraProfilingSampler;
             CommandBuffer cmd = CommandBufferPool.Get(sampler.name);
@@ -301,8 +309,8 @@ namespace UnityEngine.Rendering.Universal
                 var cullResults = context.Cull(ref cullingParameters);
                 InitializeRenderingData(asset, ref cameraData, ref cullResults, requiresBlitToBackbuffer, anyPostProcessingEnabled, out var renderingData);
 
-                renderer.Setup(context, ref renderingData);
-                renderer.Execute(context, ref renderingData);
+                renderer.Setup(context, ref renderingData); // FrameDebug 每个pass 入队.
+                renderer.Execute(context, ref renderingData); // pass 执行
             }
 
             context.ExecuteCommandBuffer(cmd);
@@ -870,6 +878,11 @@ namespace UnityEngine.Rendering.Universal
             lightData.supportsMixedLighting = settings.supportsMixedLighting;
         }
 
+        /// <summary>
+        /// 每个Object需要的数据标记
+        /// </summary>
+        /// <param name="additionalLightsCount"></param>
+        /// <returns></returns>
         static PerObjectData GetPerObjectLightFlags(int additionalLightsCount)
         {
             var configuration = PerObjectData.ReflectionProbes | PerObjectData.Lightmaps | PerObjectData.LightProbe | PerObjectData.LightData | PerObjectData.OcclusionProbe;
@@ -947,7 +960,7 @@ namespace UnityEngine.Rendering.Universal
             float cameraHeight = (float)pixelRect.height;
             Shader.SetGlobalVector(PerCameraBuffer._ScreenParams, new Vector4(cameraWidth, cameraHeight, 1.0f + 1.0f / cameraWidth, 1.0f + 1.0f / cameraHeight));
 
-            Matrix4x4 projMatrix = GL.GetGPUProjectionMatrix(camera.projectionMatrix, false);
+            Matrix4x4 projMatrix = GL.GetGPUProjectionMatrix(camera.projectionMatrix, false);// 自适应平台选择false.
             Matrix4x4 viewMatrix = camera.worldToCameraMatrix;
             Matrix4x4 viewProjMatrix = projMatrix * viewMatrix;
             Matrix4x4 invViewProjMatrix = Matrix4x4.Inverse(viewProjMatrix);

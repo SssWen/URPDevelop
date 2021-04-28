@@ -19,7 +19,7 @@ namespace UnityEngine.Rendering.Universal
         /// Creates the instance of the ScriptableRenderer.
         /// </summary>
         /// <returns>The instance of ScriptableRenderer</returns>
-        protected abstract ScriptableRenderer Create();
+        protected abstract ScriptableRenderer Create(); // 不用修改代码,可以增加feature.
 
         [SerializeField] internal List<ScriptableRendererFeature> m_RendererFeatures = new List<ScriptableRendererFeature>(10);
         [SerializeField] internal List<long> m_RendererFeatureMap = new List<long>(10);

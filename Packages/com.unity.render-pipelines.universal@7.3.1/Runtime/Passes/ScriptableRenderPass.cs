@@ -12,9 +12,11 @@ namespace UnityEngine.Rendering.Universal
     /// </summary>
     [MovedFrom("UnityEngine.Rendering.LWRP")] public enum RenderPassEvent
     {
+        // 第1个block
         BeforeRendering = 0,
         BeforeRenderingShadows = 50,
         AfterRenderingShadows = 100,
+        // 第2个block
         BeforeRenderingPrepasses = 150,
         AfterRenderingPrePasses = 200,
         BeforeRenderingOpaques = 250,
@@ -24,11 +26,13 @@ namespace UnityEngine.Rendering.Universal
         BeforeRenderingTransparents = 450,
         AfterRenderingTransparents = 500,
         BeforeRenderingPostProcessing = 550,
+        // 第3个block
         AfterRenderingPostProcessing = 600,
         AfterRendering = 1000,
     }
 
     /// <summary>
+    /// 所有pass 抽象类.
     /// <c>ScriptableRenderPass</c> implements a logical rendering pass that can be used to extend Universal RP renderer.
     /// </summary>
     [MovedFrom("UnityEngine.Rendering.LWRP")] public abstract class ScriptableRenderPass

@@ -6,6 +6,7 @@ namespace UnityEngine.Rendering.Universal
     /// Default renderer for Universal RP.
     /// This renderer is supported on all Universal RP supported platforms.
     /// It uses a classic forward rendering strategy with per-object light culling.
+    /// 所有pass计算.不透明物体,透明物体,skybox,BlitPass,screenSpace等操作.
     /// </summary>
     public sealed class ForwardRenderer : ScriptableRenderer
     {
@@ -72,6 +73,11 @@ namespace UnityEngine.Rendering.Universal
 
             // Note: Since all custom render passes inject first and we have stable sort,
             // we inject the builtin passes in the before events.
+            // 每个pass,定义的时候会定义所属区域.block范围.pass 所需material 直接传入pass 内执行.
+            // block 根据 RenderPassEvent 所属 范围判断 block,
+            // 不透明物体 属于 RenderPassEvent.BeforeRenderingOpaques 区域 = 250
+            // Skybox 属于 RenderPassEvent.BeforeRenderingSkybox  = 350
+            // 透明物体 属于   BeforeRenderingTransparents = 450, 属于 RenderQueueRange.transparent block区域 
             m_MainLightShadowCasterPass = new MainLightShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
             m_AdditionalLightsShadowCasterPass = new AdditionalLightsShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
             m_DepthPrepass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPrepasses, RenderQueueRange.opaque, data.opaqueLayerMask);
@@ -125,7 +131,13 @@ namespace UnityEngine.Rendering.Universal
             CoreUtils.Destroy(m_ScreenspaceShadowsMaterial);
         }
 
+
+        // SetUp 将每个pass进行 Enqueue 操作. 将需要的 pass 入队.
+        // ShadowcasterPass --> DepthPrePass --> ColorGradingLUTPass --> OpaqueForwardPass --> SkyboxPass --> CopyDepthPass
+        // CopyColorPass --> RenderTransparentForwardPass --> OnRenderObjectCallbackPass --> PostProcessPass
+        //                                                                               --> CapturePass --> FinalPostProcessPass --> FinalBlitPass --> PostProcessPass)                    
         /// <inheritdoc />
+        /// UniversalRenderPipeline.RenderSingleCamera.Setup()
         public override void Setup(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             Camera camera = renderingData.cameraData.camera;
@@ -134,7 +146,7 @@ namespace UnityEngine.Rendering.Universal
 
             // Special path for depth only offscreen cameras. Only write opaques + transparents.
             bool isOffscreenDepthTexture = cameraData.targetTexture != null && cameraData.targetTexture.format == RenderTextureFormat.Depth;
-            if (isOffscreenDepthTexture)
+            if (isOffscreenDepthTexture) // depth Camera,这个叫做离屏相机.深度相机的渲染管线不一样
             {
                 ConfigureCameraTarget(BuiltinRenderTextureType.CameraTarget, BuiltinRenderTextureType.CameraTarget);
 
@@ -144,7 +156,7 @@ namespace UnityEngine.Rendering.Universal
                         rendererFeatures[i].AddRenderPasses(this, ref renderingData);
                 }
 
-                EnqueuePass(m_RenderOpaqueForwardPass);
+                EnqueuePass(m_RenderOpaqueForwardPass);//pass入相机队列, Enqueue,Dequeue
                 EnqueuePass(m_DrawSkyboxPass);
                 EnqueuePass(m_RenderTransparentForwardPass);
                 return;
@@ -239,6 +251,9 @@ namespace UnityEngine.Rendering.Universal
             }
             bool hasPassesAfterPostProcessing = activeRenderPassQueue.Find(x => x.renderPassEvent == RenderPassEvent.AfterRendering) != null;
 
+            // ShadowcasterPass --> DepthPrePass --> ColorGradingLUTPass --> OpaqueForwardPass --> SkyboxPass --> CopyDepthPass
+            // CopyColorPass --> RenderTransparentForwardPass --> OnRenderObjectCallbackPass --> PostProcessPass
+            //                                                                               --> CapturePass --> FinalPostProcessPass --> FinalBlitPass --> PostProcessPass)            
             if (mainLightShadows)
                 EnqueuePass(m_MainLightShadowCasterPass);
 
