@@ -220,12 +220,13 @@ namespace UnityEngine.Rendering.Universal
             for (int i = 0; i < cameras.Length; ++i)
             {
                 var camera = cameras[i];
-                if (IsGameCamera(camera))
+                if (IsGameCamera(camera)) //Game视图
                 {
                     RenderCameraStack(renderContext, camera);
                 }
                 else
                 {
+                    // Scene 视图
                     BeginCameraRendering(renderContext, camera);
 #if VISUAL_EFFECT_GRAPH_0_0_1_OR_NEWER
                     //It should be called before culling to prepare material. When there isn't any VisualEffect component, this method has no effect.
@@ -306,9 +307,11 @@ namespace UnityEngine.Rendering.Universal
                 }
 #endif
 
-                var cullResults = context.Cull(ref cullingParameters);
+                var cullResults = context.Cull(ref cullingParameters); // 进行剔除后剩余需要被渲染的物体。
                 InitializeRenderingData(asset, ref cameraData, ref cullResults, requiresBlitToBackbuffer, anyPostProcessingEnabled, out var renderingData);
 
+
+                // ForwardRenderer
                 renderer.Setup(context, ref renderingData); // FrameDebug 每个pass 入队.
                 renderer.Execute(context, ref renderingData); // pass 执行
             }
@@ -757,14 +760,18 @@ namespace UnityEngine.Rendering.Universal
                 }
             }
 
-            renderingData.cullResults = cullResults;
-            renderingData.cameraData = cameraData;
+            renderingData.cullResults = cullResults; //要渲染的物体
+            renderingData.cameraData = cameraData; //相机参数
+            // 根据相机，灯光等 得到需要渲染的 RenderingData 渲染数据.
             InitializeLightData(settings, visibleLights, mainLightIndex, out renderingData.lightData);
+            // 阴影参数
             InitializeShadowData(settings, visibleLights, mainLightCastShadows, additionalLightsCastShadows && !renderingData.lightData.shadeAdditionalLightsPerVertex, out renderingData.shadowData);
+            // 后处理参数
             InitializePostProcessingData(settings, out renderingData.postProcessingData);
             renderingData.supportsDynamicBatching = settings.supportsDynamicBatching;
             renderingData.perObjectData = GetPerObjectLightFlags(renderingData.lightData.additionalLightsCount);
 
+            // 相机RT类型
             bool isOffscreenCamera = cameraData.targetTexture != null && !cameraData.isSceneViewCamera;
             renderingData.resolveFinalTarget = requiresBlitToBackbuffer;
             renderingData.postProcessingEnabled = anyPostProcessingEnabled;

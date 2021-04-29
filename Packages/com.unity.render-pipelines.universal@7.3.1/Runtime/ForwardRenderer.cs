@@ -313,7 +313,7 @@ namespace UnityEngine.Rendering.Universal
                 EnqueuePass(m_TransparentSettingsPass);
             }
 
-            EnqueuePass(m_RenderTransparentForwardPass);
+            EnqueuePass(m_RenderTransparentForwardPass); // URP大概渲染顺序 Opaque->SkyBox->Transparent->后期 和内置一样
             EnqueuePass(m_OnRenderObjectCallbackPass);
 
             bool lastCameraInTheStack = renderingData.resolveFinalTarget;

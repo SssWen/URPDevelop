@@ -248,7 +248,7 @@ namespace UnityEngine.Rendering.Universal
             cmd.Clear();
             
             // Sort the render pass queue
-            SortStable(m_ActiveRenderPassQueue); // 
+            SortStable(m_ActiveRenderPassQueue); // 排列pass，先后顺序按照
 
             // Cache the time for after the call to `SetupCameraProperties` and set the time variables in shader
             // For now we set the time variables per camera, as we plan to remove `SetupCamearProperties`.
