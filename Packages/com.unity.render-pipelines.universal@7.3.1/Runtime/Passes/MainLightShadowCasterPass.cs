@@ -31,7 +31,7 @@ namespace UnityEngine.Rendering.Universal.Internal
         bool m_SupportsBoxFilterForShadows;
 
         RenderTargetHandle m_MainLightShadowmap;
-        RenderTexture m_MainLightShadowmapTexture;
+        RenderTexture m_MainLightShadowmapTexture; // PBR中参与阴影计算。
 
         Matrix4x4[] m_MainLightShadowMatrices;
         ShadowSliceData[] m_CascadeSlices;
@@ -115,7 +115,7 @@ namespace UnityEngine.Rendering.Universal.Internal
         {
             m_MainLightShadowmapTexture = ShadowUtils.GetTemporaryShadowTexture(m_ShadowmapWidth,
                     m_ShadowmapHeight, k_ShadowmapBufferBits);
-            ConfigureTarget(new RenderTargetIdentifier(m_MainLightShadowmapTexture));
+            ConfigureTarget(new RenderTargetIdentifier(m_MainLightShadowmapTexture)); // 将MainLightShadowmapTexture 传入
             ConfigureClear(ClearFlag.All, Color.black);
         }
 

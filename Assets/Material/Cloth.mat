@@ -1,0 +1,284 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8025761652163293949
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Cloth
+  m_Shader: {fileID: 4800000, guid: d9debafde08358440887ec21b8a69cb9, type: 3}
+  m_ShaderKeywords: _Layer0NormalMode_0 _Layer0UVSet_0 _Layer1NormalMode_0 _Layer1UVSet_0
+    _Layer2NormalMode_0 _Layer2UVSet_0 _Layer3NormalMode_0 _Layer3UVSet_0 _Layer4NormalMode_0
+    _Layer4UVSet_0 _Layer5NormalMode_0 _Layer5UVSet_0 _Layer6NormalMode_0 _Layer6UVSet_0
+    _Layer7NormalMode_0 _Layer7UVSet_0 _NORMALMAP
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2050
+  stringTagMap:
+    RenderType: Opaque
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AnisNoiseTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DensityTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FlashTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer0Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer0Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer1Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer1Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer2Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer2Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer3Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer3Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer4Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer4Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer5Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer5Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer6Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer6Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer7Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer7Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ReflectionTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SparkleNoiseTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AlphaClip: 0
+    - _AnistropicOn: 0
+    - _AttenuationControl: 1
+    - _Blend: 0
+    - _Brightness: 1
+    - _BumpScale: 1
+    - _ColorRandom: 0.2
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DarkTime: 10
+    - _DeleteRandom: 0
+    - _DeleteSmall: 0
+    - _Density: 0
+    - _DensityCtrl: 0.5
+    - _DensitySmooth: 1
+    - _DstBlend: 0
+    - _EnvironmentReflections: 1
+    - _FlashMetallic: 0.1
+    - _FlashMin: 0
+    - _FlashSmoothness: 0.9
+    - _FlashSpeed: 3
+    - _FlashUVSet: 0
+    - _FlashZone: 1
+    - _GlossMapScale: 0
+    - _Glossiness: 0
+    - _GlossyReflections: 0
+    - _Layer0Metallic: 0
+    - _Layer0NormalMode: 0
+    - _Layer0NormalScale: 1
+    - _Layer0Smoothness: 0
+    - _Layer0UVSet: 0
+    - _Layer1Cutoff: 0.5
+    - _Layer1Metallic: 0
+    - _Layer1NormalMode: 0
+    - _Layer1NormalScale: 1
+    - _Layer1Smoothness: 0
+    - _Layer1UVSet: 0
+    - _Layer2Metallic: 0
+    - _Layer2NormalMode: 0
+    - _Layer2NormalScale: 1
+    - _Layer2Smoothness: 0
+    - _Layer2UVSet: 0
+    - _Layer3Metallic: 0
+    - _Layer3NormalMode: 0
+    - _Layer3NormalScale: 1
+    - _Layer3Smoothness: 0
+    - _Layer3UVSet: 0
+    - _Layer4Metallic: 0
+    - _Layer4NormalMode: 0
+    - _Layer4NormalScale: 1
+    - _Layer4Smoothness: 0
+    - _Layer4UVSet: 0
+    - _Layer5Metallic: 0
+    - _Layer5NormalMode: 0
+    - _Layer5NormalScale: 1
+    - _Layer5Smoothness: 0
+    - _Layer5UVSet: 0
+    - _Layer6Metallic: 0
+    - _Layer6NormalMode: 0
+    - _Layer6NormalScale: 1
+    - _Layer6Smoothness: 0
+    - _Layer6UVSet: 0
+    - _Layer7Metallic: 0
+    - _Layer7NormalMode: 0
+    - _Layer7NormalScale: 1
+    - _Layer7Smoothness: 0
+    - _Layer7UVSet: 0
+    - _LightDirX: 0
+    - _LightDirY: 0
+    - _LightDirZ: 0
+    - _Metallic: 0
+    - _MinTransparency: 0
+    - _OcclusionStrength: 1
+    - _Offset: 0.01
+    - _OffsetRandom: 1
+    - _QueueOffset: 0
+    - _RadiusRandom: 5
+    - _RandomSeed: 0
+    - _ReceiveShadows: 1
+    - _RimAlphaEnhance: 0
+    - _RimAlphaMax: 1
+    - _RimAlphaMin: 0
+    - _RimAlphaOn: 0
+    - _RimLightMax: 1
+    - _RimLightMin: 0
+    - _RimLightOn: 0
+    - _Rotate: 0
+    - _RoughnessX: 0.01
+    - _RoughnessY: 0.01
+    - _SharpLightChangeOn: 0
+    - _ShiftX: 0.01
+    - _ShiftY: 0.01
+    - _Smoothness: 0.5
+    - _SmoothnessTextureChannel: 0
+    - _SparkleOn: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _Surface: 0
+    - _TCP_RimMax: 0.7
+    - _TCP_RimMin: 0.6
+    - _TCP_RimOffsetX: 0
+    - _TCP_RimOffsetY: 0
+    - _TCP_RimOffsetZ: 0
+    - _TCP_RimOffset_On: 0
+    - _TCP_RimStrength: 0.5
+    - _TCP_Rim_On: 0
+    - _Threshold1: 0.4
+    - _Threshold2: 0.8
+    - _Transparency: 1
+    - _WorkflowMode: 1
+    - _WrapLightingOn: 0
+    - _YRotation: 1
+    - _ZWrite: 1
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _FlashColor1: {r: 1, g: 1, b: 1, a: 1}
+    - _FlashColor2: {r: 1, g: 1, b: 1, a: 1}
+    - _HighLightColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer0Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer1Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer2Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer3Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer4Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer5Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer6Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Layer7Color: {r: 1, g: 1, b: 1, a: 1}
+    - _RimLightColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ShadowLightColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+    - _TCP_RimColor: {r: 1, g: 1, b: 1, a: 1}
