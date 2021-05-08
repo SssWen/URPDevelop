@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Shadowmask
-  m_Shader: {fileID: 4800000, guid: 28f13517a5083af4abc68e6e3841a220, type: 3}
+  m_Shader: {fileID: 4800000, guid: a8562196f6ddc0c46817093f05ed7d69, type: 3}
   m_ShaderKeywords: _Layer0NormalMode_0 _Layer0UVSet_0 _Layer1NormalMode_0 _Layer1UVSet_0
     _Layer2NormalMode_0 _Layer2UVSet_0 _Layer3NormalMode_0 _Layer3UVSet_0 _Layer4NormalMode_0
     _Layer4UVSet_0 _Layer5NormalMode_0 _Layer5UVSet_0 _Layer6NormalMode_0 _Layer6UVSet_0

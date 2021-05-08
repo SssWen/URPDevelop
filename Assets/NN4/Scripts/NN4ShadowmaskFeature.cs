@@ -100,7 +100,7 @@ public class NN4ShadowmaskFeature : ScriptableRendererFeature
             m_NN4ShadowmaskTexture.wrapMode = TextureWrapMode.Clamp;
             m_NN4ShadowmaskTexture.name = "_posm_ShadowMaskSkin";
             ConfigureTarget(new RenderTargetIdentifier(m_NN4ShadowmaskTexture));            
-            ConfigureClear(ClearFlag.All, Color.black);
+            ConfigureClear(ClearFlag.All, Color.white);
         }
 
         // Here you can implement the rendering logic.

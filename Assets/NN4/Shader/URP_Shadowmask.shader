@@ -95,8 +95,8 @@
                 half sumB = PCF_FILTER_NN(uvw,offsets_1) + PCF_FILTER_NN(uvw,offsets_2) + PCF_FILTER_NN(uvw,offsets_3) + PCF_FILTER_NN(uvw,offsets_4);
                 sumB = sumB / 16;
                 half sum = 0.5*sumA + 0.5*sumB;
-                float4 color = pow(sum,0.40000001);                   
-				// color.rgba = half4(1,1,0,1);
+                float4 color = pow(sum,0.40000001);
+				 color.rgba = half4(input.uv.x,0.01,0,1);
                 
                 return color;                               
             }

@@ -56,9 +56,9 @@ MonoBehaviour:
   m_Name: URP_Renderer
   m_EditorClassIdentifier: 
   m_RendererFeatures:
-  - {fileID: -2856268033728935104}
   - {fileID: -598378738213941459}
-  m_RendererFeatureMap: 408b48425b7f5cd82d8f9c3bb521b2f7
+  - {fileID: -2856268033728935104}
+  m_RendererFeatureMap: 2d8f9c3bb521b2f7408b48425b7f5cd8
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   shaders:
     blitPS: {fileID: 4800000, guid: c17132b1f77d20942aa75f8429c0f8bc, type: 3}
