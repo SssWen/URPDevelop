@@ -173,6 +173,7 @@
 #elif defined(SHADER_API_GLES3)
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/API/GLES3.hlsl"
 #elif defined(SHADER_API_GLES)
+// GLES2.hlsl °üº¬
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/API/GLES2.hlsl"
 #else
 #error unsupported shader api
