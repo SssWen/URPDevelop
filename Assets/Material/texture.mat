@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cloth 1
-  m_Shader: {fileID: 4800000, guid: d9debafde08358440887ec21b8a69cb9, type: 3}
+  m_Name: texture
+  m_Shader: {fileID: 4800000, guid: 5085fa8a59466a04bbcc8dce48bd2c9c, type: 3}
   m_ShaderKeywords: _Layer0NormalMode_0 _Layer0UVSet_0 _Layer1NormalMode_0 _Layer1UVSet_0
     _Layer2NormalMode_0 _Layer2UVSet_0 _Layer3NormalMode_0 _Layer3UVSet_0 _Layer4NormalMode_0
     _Layer4UVSet_0 _Layer5NormalMode_0 _Layer5UVSet_0 _Layer6NormalMode_0 _Layer6UVSet_0
@@ -29,9 +29,8 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2050
-  stringTagMap:
-    RenderType: Opaque
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3

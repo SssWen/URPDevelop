@@ -2,8 +2,8 @@
 {
     Properties
     {
-        [MainColor] _BaseColor("BaseColor", Color) = (1,1,1,1)
-        [MainTexture] _BaseMap("BaseMap", 2D) = "white" {}
+        [MainColor] _BaseColor("BaseColor", Color) = (1,0.5,0,1)
+        //[MainTexture] _BaseMap("BaseMap", 2D) = "white" {}
     }
 
     // Universal Render Pipeline subshader. If URP is installed this will be used.
@@ -33,80 +33,37 @@
                 float4 positionHCS  : SV_POSITION;
             };
 
-            TEXTURE2D(_BaseMap);
-            SAMPLER(sampler_BaseMap);
-            
+            TEXTURE2D(_ZorroShadowmapTexture);
+            TEXTURE2D(_CameraColorTexture);
+            SAMPLER(sampler_ZorroShadowmapTexture);
+            SAMPLER(sampler_CameraColorTexture);
+            half4 _BaseColor;
+            half4 _MainColor;
+            /*
             CBUFFER_START(UnityPerMaterial)
             float4 _BaseMap_ST;
             half4 _BaseColor;
             CBUFFER_END
-
+			*/
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+                // OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.uv = IN.uv;
                 return OUT;
             }
 
             half4 frag(Varyings IN) : SV_Target
             {
-                return SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                //return SAMPLE_TEXTURE2D(_ZorroShadowmapTexture, sampler_ZorroShadowmapTexture, IN.uv) * _BaseColor;
+                // return SAMPLE_TEXTURE2D(_CameraColorTexture, sampler_CameraColorTexture, IN.uv) * _BaseColor;
+                return _BaseColor*IN.uv.x;
+                // return  _BaseColor;
             }
             ENDHLSL
         }
     }
 
-    // Built-in pipeline subshader. This is fallback subshader in case URP is not being used.
-    SubShader
-    {
-        Tags { "RenderType"="Opaque"}
-        LOD 100
 
-        Pass
-        {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
-
-            #include "UnityCG.cginc"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
-                float4 vertex : SV_POSITION;
-            };
-
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-
-            v2f vert (appdata v)
-            {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
-                return o;
-            }
-
-            fixed4 frag (v2f i) : SV_Target
-            {
-                // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
-                return col;
-            }
-            ENDCG
-        }
-    }
 }

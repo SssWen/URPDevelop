@@ -94,7 +94,7 @@ public class NN4DepthFeatures : ScriptableRendererFeature
 
                 cmd.SetGlobalTexture("posm_ShadowMap", destination.id);
             }
-            Debug.Log("111");
+            
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }

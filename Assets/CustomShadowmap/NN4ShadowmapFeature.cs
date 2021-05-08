@@ -4,10 +4,10 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using System.Collections.Generic;
 
-public class OnlyDepthShadowmapFeature : ScriptableRendererFeature
+public class NN4ShadowmapFeature : ScriptableRendererFeature
 {
     [System.Serializable, ReloadGroup]
-    public class CustomLayerSettings
+    public class NN4ShadowmapFeatureSettings
     {
         [Range(0, 0.01f)]
         [SerializeField]
@@ -15,16 +15,36 @@ public class OnlyDepthShadowmapFeature : ScriptableRendererFeature
         public Color ShadowColor = Color.grey;
         public LayerMask OpaqueLayerMask;
         public LayerMask TransparentLayerMask;
+        public Material DepthMaterial;
+    }
+    NN4ShadowmapPass m_NN4ShadowmapPass;
+
+    public NN4ShadowmapFeatureSettings m_Settings;
+
+    public override void Create()
+    {
+        m_NN4ShadowmapPass = new NN4ShadowmapPass("Render Custom Shadowmap", true, RenderPassEvent.BeforeRendering - 10, RenderQueueRange.opaque, m_Settings.OpaqueLayerMask);
+        m_NN4ShadowmapPass._ShadowParams = m_Settings.ShadowColor;
+        m_NN4ShadowmapPass._ShadowParams.w = m_Settings.ShadowBias;
+        m_NN4ShadowmapPass.Settings = m_Settings;
+        //m_ScriptablePassTransparent = new LayerRenderPass("Render Player Transparent", false, RenderPassEvent.AfterRenderingTransparents + 11, RenderQueueRange.transparent, m_Settings.TransparentLayerMask);
     }
 
-    class OnlyDepthShadowmapRenderPass : ScriptableRenderPass
+    // Here you can inject one or multiple render passes in the renderer.
+    // This method is called when setting up the renderer once per-camera.
+    public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+    {
+        if (m_Settings.DepthMaterial != null)
+            renderer.EnqueuePass(m_NN4ShadowmapPass);
+    }
+    public class NN4ShadowmapPass : ScriptableRenderPass
     {
         List<ShaderTagId> m_ShaderTagIdList = new List<ShaderTagId>();
         string m_ProfilerTag;
         ProfilingSampler m_ProfilingSampler;
         FilteringSettings m_FilteringSettings;
         RenderStateBlock m_RenderStateBlock;
-        Camera m_shadowCamera;
+        Camera m_ShadowCamera;
 
         RenderTargetHandle m_MainLightShadowmap;
         RenderTexture m_MainLightShadowmapTexture;
@@ -34,7 +54,8 @@ public class OnlyDepthShadowmapFeature : ScriptableRendererFeature
         Matrix4x4 _MatrixWorldToShadow;
         public Vector4 _ShadowParams;
 
-        public OnlyDepthShadowmapRenderPass(string profilerTag, bool opaque, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask)//, StencilState stencilState, int stencilReference)
+        public NN4ShadowmapFeatureSettings Settings;
+        public NN4ShadowmapPass(string profilerTag, bool opaque, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask)//, StencilState stencilState, int stencilReference)
         {
             m_ProfilerTag = profilerTag;
             m_ProfilingSampler = new ProfilingSampler(profilerTag);
@@ -55,9 +76,7 @@ public class OnlyDepthShadowmapFeature : ScriptableRendererFeature
             //    m_RenderStateBlock.stencilState = stencilState;
             //}
             _CustomWorldToShadowID = Shader.PropertyToID("_ZorroShadowMatrix");
-            _CustomShadowParams = Shader.PropertyToID("_ZorroShadowParams");
-
-            //m_MainLightShadowmap.Init("_CustomLightShadowmapTexture");
+            _CustomShadowParams = Shader.PropertyToID("_ZorroShadowParams");            
         }
 
         const int k_ShadowmapBufferBits = 32;
@@ -69,43 +88,22 @@ public class OnlyDepthShadowmapFeature : ScriptableRendererFeature
         // You should never call CommandBuffer.SetRenderTarget. Instead call <c>ConfigureTarget</c> and <c>ConfigureClear</c>.
         // The render pipeline will ensure target setup and clearing happens in an performance manner.
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
-        {            
+        {
             GameObject obj = GameObject.FindGameObjectWithTag("ShadowCamera");
             if (null == obj)
                 return;
-            m_shadowCamera = obj.GetComponent<Camera>();
+            m_ShadowCamera = obj.GetComponent<Camera>();
 
-            if (null == m_shadowCamera)
+            if (null == m_ShadowCamera)
                 return;
 
-            //var des = cameraTextureDescriptor;
-            //des.colorFormat = RenderTextureFormat.ARGB32;
-            //des.width = s_shadowmap_size;
-            //des.height = s_shadowmap_size;
-            //des.depthBufferBits = 32;
-            //des.useMipMap = false;
-            //des.autoGenerateMips = false;
-            //m_MainLightShadowmapTexture = RenderTexture.GetTemporary(des);
-            //m_MainLightShadowmapTexture.filterMode = FilterMode.Point;
-            //m_MainLightShadowmapTexture.wrapMode = TextureWrapMode.Clamp;
-
-            m_MainLightShadowmapTexture = RenderTexture.GetTemporary(s_shadowmap_size, s_shadowmap_size, k_ShadowmapBufferBits, RenderTextureFormat.Shadowmap);
+            m_MainLightShadowmapTexture = RenderTexture.GetTemporary(s_shadowmap_size/2, s_shadowmap_size/2, k_ShadowmapBufferBits, RenderTextureFormat.R16);
             m_MainLightShadowmapTexture.filterMode =  FilterMode.Bilinear;
             m_MainLightShadowmapTexture.wrapMode = TextureWrapMode.Clamp;
-
-            ConfigureTarget(new RenderTargetIdentifier(m_MainLightShadowmapTexture));
-            //ConfigureClear(ClearFlag.All, Color.white);
+            m_MainLightShadowmapTexture.name = "Shadowmap";
+            ConfigureTarget(new RenderTargetIdentifier(m_MainLightShadowmapTexture));            
             ConfigureClear(ClearFlag.All, Color.black);
         }
-
-        //public static RenderTexture GetShadowmapRt(int width, int height, int bits)
-        //{
-        //    var shadowTexture = RenderTexture.GetTemporary(width, height, bits, RenderTextureFormat.ARGB32);
-        //    shadowTexture.filterMode = m_ForceShadowPointSampling ? FilterMode.Point : FilterMode.Bilinear;
-        //    shadowTexture.wrapMode = TextureWrapMode.Clamp;
-
-        //    return shadowTexture;
-        //}
 
         // Here you can implement the rendering logic.
         // Use <c>ScriptableRenderContext</c> to issue drawing commands or execute command buffers
@@ -113,45 +111,33 @@ public class OnlyDepthShadowmapFeature : ScriptableRendererFeature
         // You don't have to call ScriptableRenderContext.submit, the render pipeline will call it at specific points in the pipeline.
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            if (null == m_shadowCamera)
+            if (null == m_ShadowCamera)
                 return;
-            Debug.Log(555);
 
-            //if(renderingData.cameraData.isSceneViewCamera)
-            //    return;
+            _MatrixWorldToShadow = m_ShadowCamera.projectionMatrix * m_ShadowCamera.worldToCameraMatrix;
 
-            _MatrixWorldToShadow = m_shadowCamera.projectionMatrix * m_shadowCamera.worldToCameraMatrix;
-
-            Camera camera = renderingData.cameraData.camera;
+            Camera camera = renderingData.cameraData.camera;            
+            
 
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
             using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
-                //// Global render pass data containing various settings.
-                //// x,y,z are currently unused
-                //// w is used for knowing whether the object is opaque(1) or alpha blended(0)
-                //Vector4 drawObjectPassData = new Vector4(0.0f, 0.0f, 0.0f, (m_IsOpaque) ? 1.0f : 0.0f);
-                //cmd.SetGlobalVector(s_DrawObjectPassDataPropID, drawObjectPassData);
-                //context.ExecuteCommandBuffer(cmd);
-                //cmd.Clear();
 
                 cmd.SetGlobalMatrix(_CustomWorldToShadowID, _MatrixWorldToShadow);
                 cmd.SetGlobalVector(_CustomShadowParams, _ShadowParams);
                 //change view projection matrix using cmd buffer
-                cmd.SetViewProjectionMatrices(m_shadowCamera.worldToCameraMatrix, m_shadowCamera.projectionMatrix);
+                cmd.SetViewProjectionMatrices(m_ShadowCamera.worldToCameraMatrix, m_ShadowCamera.projectionMatrix);
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
 
                 var sortFlags = renderingData.cameraData.defaultOpaqueSortFlags;
                 var drawSettings = CreateDrawingSettings(m_ShaderTagIdList, ref renderingData, sortFlags);
+                drawSettings.overrideMaterial = Settings.DepthMaterial;
                 var filterSettings = m_FilteringSettings;
 
-                #if UNITY_EDITOR
-
-                #endif
-
                 ////only clear depth buffer here
-                //cmd.ClearRenderTarget(true, false, Color.clear);
+                ///  Clear Depth, Clear Color
+//                cmd.ClearRenderTarget(true, false, Color.clear);
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref m_RenderStateBlock);
 
                 cmd.SetGlobalTexture(m_MainLightShadowmap.id, m_MainLightShadowmapTexture);
@@ -173,36 +159,9 @@ public class OnlyDepthShadowmapFeature : ScriptableRendererFeature
                 m_MainLightShadowmapTexture = null;
             }
         }
-
-        void Clear()
-        {
-            m_MainLightShadowmapTexture = null;
-        }
     }
 
-    OnlyDepthShadowmapRenderPass m_ScriptablePassOpaque;
 
-    public CustomLayerSettings settings = new CustomLayerSettings();
-
-    public override void Create()
-    {
-#if UNITY_EDITOR
-        ResourceReloader.TryReloadAllNullIn(settings, "Assets/");
-#endif
-        m_ScriptablePassOpaque = new OnlyDepthShadowmapRenderPass("Render Custom Shadowmap", true, RenderPassEvent.BeforeRendering - 10, RenderQueueRange.opaque, settings.OpaqueLayerMask);
-
-        m_ScriptablePassOpaque._ShadowParams = settings.ShadowColor;
-        m_ScriptablePassOpaque._ShadowParams.w = settings.ShadowBias;
-        //m_ScriptablePassTransparent = new LayerRenderPass("Render Player Transparent", false, RenderPassEvent.AfterRenderingTransparents + 11, RenderQueueRange.transparent, settings.TransparentLayerMask);
-    }
-
-    // Here you can inject one or multiple render passes in the renderer.
-    // This method is called when setting up the renderer once per-camera.
-    public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
-    {
-        Debug.Log(444);
-        renderer.EnqueuePass(m_ScriptablePassOpaque);
-    }
 }
 
 

@@ -279,8 +279,8 @@ Shader "OnlyDepthShadowTest"
 				shadowVertex.y = 1 - shadowVertex.y;
 
 				float t = SAMPLE_TEXTURE2D_SHADOW(_ZorroShadowmapTexture, sampler__ZorroShadowmapTexture, shadowVertex.xyz);
-				// color.rgb = lerp(color.rgb * _ShadowColor, color.rgb, t);				
-
+				color.rgb = lerp(color.rgb * _ShadowColor, color.rgb, t);				
+				
 				return color;
 			}
 

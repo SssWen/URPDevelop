@@ -2,7 +2,7 @@
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        
         _DepthBias("_DepthBias", float) = 0
         _DepthSlopeBias("_DepthSlopeBias", float) = -0.005
         _ShadowBias("_ShadowBias", float) = 0

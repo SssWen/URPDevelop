@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cloth 1
-  m_Shader: {fileID: 4800000, guid: d9debafde08358440887ec21b8a69cb9, type: 3}
+  m_Name: Shadowcaster
+  m_Shader: {fileID: 4800000, guid: 28f13517a5083af4abc68e6e3841a220, type: 3}
   m_ShaderKeywords: _Layer0NormalMode_0 _Layer0UVSet_0 _Layer1NormalMode_0 _Layer1UVSet_0
     _Layer2NormalMode_0 _Layer2UVSet_0 _Layer3NormalMode_0 _Layer3UVSet_0 _Layer4NormalMode_0
     _Layer4UVSet_0 _Layer5NormalMode_0 _Layer5UVSet_0 _Layer6NormalMode_0 _Layer6UVSet_0
@@ -29,9 +29,8 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2050
-  stringTagMap:
-    RenderType: Opaque
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -164,6 +163,8 @@ Material:
     - _Density: 0
     - _DensityCtrl: 0.5
     - _DensitySmooth: 1
+    - _DepthBias: 0
+    - _DepthSlopeBias: -0.005
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _FlashMetallic: 0.1
@@ -238,6 +239,7 @@ Material:
     - _Rotate: 0
     - _RoughnessX: 0.01
     - _RoughnessY: 0.01
+    - _ShadowBias: 0
     - _SharpLightChangeOn: 0
     - _ShiftX: 0.01
     - _ShiftY: 0.01
@@ -263,7 +265,7 @@ Material:
     - _YRotation: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.7830189, g: 0.73973584, b: 0.32133323, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FlashColor1: {r: 1, g: 1, b: 1, a: 1}
@@ -282,3 +284,4 @@ Material:
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _TCP_RimColor: {r: 1, g: 1, b: 1, a: 1}
+    - posm_ShadowCamera_Parameter: {r: 0.01, g: 1.70942, b: 0.58844, a: -0.00588}

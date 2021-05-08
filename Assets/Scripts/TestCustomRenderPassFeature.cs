@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
@@ -6,6 +7,13 @@ public class TestCustomRenderPassFeature : ScriptableRendererFeature
 {
     class CustomRenderPass : ScriptableRenderPass
     {
+
+        List<ShaderTagId> m_ShaderTagIdList = new List<ShaderTagId>();
+        string m_ProfilerTag;
+        ProfilingSampler m_ProfilingSampler;
+        FilteringSettings m_FilteringSettings;
+        
+
         CustomRPSettings _CustomRPSettings;
         RenderTargetHandle _TemporaryColorTexture;
 
@@ -15,6 +23,7 @@ public class TestCustomRenderPassFeature : ScriptableRendererFeature
         public CustomRenderPass(CustomRPSettings settings)
         {
             _CustomRPSettings = settings;
+            m_FilteringSettings = new FilteringSettings();
         }
 
         public void Setup(RenderTargetIdentifier source, RenderTargetHandle destination)
@@ -26,21 +35,29 @@ public class TestCustomRenderPassFeature : ScriptableRendererFeature
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
             _TemporaryColorTexture.Init("_TemporaryColorTexture_NN");
+            ConfigureTarget(_TemporaryColorTexture.id);
+            ConfigureClear(ClearFlag.All,Color.black);
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
+//            Debug.Log(renderingData.cameraData.camera.name);
+            if (!renderingData.cameraData.camera.CompareTag("ShadowCamera"))
+                return;
             CommandBuffer cmd = CommandBufferPool.Get("My Pass");
 
             if (_Destination == RenderTargetHandle.CameraTarget)
             {                
-                cmd.GetTemporaryRT(_TemporaryColorTexture.id, renderingData.cameraData.cameraTargetDescriptor, FilterMode.Point);
-                cmd.Blit(_Source, _TemporaryColorTexture.Identifier());
-                cmd.Blit(_TemporaryColorTexture.Identifier(), _Source, _CustomRPSettings.m_Material);
-            }
-            else
-            {                
-                cmd.Blit(_Source, _Destination.Identifier(), _CustomRPSettings.m_Material, 0);
+//                cmd.GetTemporaryRT(_TemporaryColorTexture.id, renderingData.cameraData.cameraTargetDescriptor, FilterMode.Point);
+//                cmd.Blit(_Source, _TemporaryColorTexture.Identifier());
+//                cmd.Blit(_TemporaryColorTexture.Identifier(), _Source, _CustomRPSettings.m_Material);
+
+
+                var sortFlags = renderingData.cameraData.defaultOpaqueSortFlags;
+                var drawSettings = CreateDrawingSettings(m_ShaderTagIdList, ref renderingData, sortFlags);
+                drawSettings.overrideMaterial = _CustomRPSettings.m_Material;
+                var filterSettings = m_FilteringSettings;
+                context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings);
             }
 
             context.ExecuteCommandBuffer(cmd);
@@ -49,10 +66,10 @@ public class TestCustomRenderPassFeature : ScriptableRendererFeature
 
         public override void FrameCleanup(CommandBuffer cmd)
         {
-            if (_Destination == RenderTargetHandle.CameraTarget)
-            {
-                cmd.ReleaseTemporaryRT(_TemporaryColorTexture.id);
-            }
+//            if (_Destination == RenderTargetHandle.CameraTarget)
+//            {
+//                cmd.ReleaseTemporaryRT(_TemporaryColorTexture.id);
+//            }
         }
     }
 
