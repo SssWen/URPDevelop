@@ -20,6 +20,8 @@ public class ShowRT : MonoBehaviour
         //        showShadowmap.texture = Shader.GetGlobalTexture("_CameraDepthAttachment");
         //        showShadowmap.texture = Shader.GetGlobalTexture("ShadowMap NN");
         //        showShadowmap.texture = Shader.GetGlobalTexture("_CameraColorTexture"); // 1 
-        showShadowmap.texture = Shader.GetGlobalTexture("_ZorroShadowmapTexture");
+//        showShadowmap.texture = Shader.GetGlobalTexture("_ZorroShadowmapTexture");
+        showShadowmap.texture = Shader.GetGlobalTexture("posm_ShadowMaskSkin");
+//        showShadowmap.texture = Shader.GetGlobalTexture("posm_ShadowMap");
     }
 }

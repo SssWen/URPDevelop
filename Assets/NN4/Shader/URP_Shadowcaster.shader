@@ -33,7 +33,7 @@
 
             struct Varyings
             {
-                float2 uv           : TEXCOORD0;
+                float4 uv           : TEXCOORD0;
                 float4 positionHCS  : SV_POSITION;
             };
 			
@@ -58,14 +58,14 @@
 				half y = mul(UNITY_MATRIX_IT_MV[2],normal);
                 y = abs(y) * _DepthSlopeBias + _DepthBias + _ShadowBias;
                 output.uv.y = y;
-
+				output.uv.zw = input.uv; // 
                 return output;
             }
 
             half4 frag(Varyings input) : SV_Target
             {          
-				half4 col = input.uv.x + input.uv.y;
-				//col.r = input.uv.x;
+				half4 col = input.uv.x + input.uv.y;				
+				col.r = input.uv.z;
                 return col;
             }
             ENDHLSL

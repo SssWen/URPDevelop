@@ -23,11 +23,10 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
 
     public override void Create()
     {
-        m_NN4ShadowmapPass = new NN4ShadowmapPass("Render Custom Shadowmap", true, RenderPassEvent.BeforeRendering - 10, RenderQueueRange.opaque, m_Settings.OpaqueLayerMask);
+        m_NN4ShadowmapPass = new NN4ShadowmapPass("NN4Camera.Render.Shadowmap", RenderPassEvent.BeforeRenderingShadows, RenderQueueRange.opaque, m_Settings.OpaqueLayerMask);
         m_NN4ShadowmapPass._ShadowParams = m_Settings.ShadowColor;
         m_NN4ShadowmapPass._ShadowParams.w = m_Settings.ShadowBias;
         m_NN4ShadowmapPass.Settings = m_Settings;
-        //m_ScriptablePassTransparent = new LayerRenderPass("Render Player Transparent", false, RenderPassEvent.AfterRenderingTransparents + 11, RenderQueueRange.transparent, m_Settings.TransparentLayerMask);
     }
 
     // Here you can inject one or multiple render passes in the renderer.
@@ -55,7 +54,7 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
         public Vector4 _ShadowParams;
 
         public NN4ShadowmapFeatureSettings Settings;
-        public NN4ShadowmapPass(string profilerTag, bool opaque, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask)//, StencilState stencilState, int stencilReference)
+        public NN4ShadowmapPass(string profilerTag, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask)//, StencilState stencilState, int stencilReference)
         {
             m_ProfilerTag = profilerTag;
             m_ProfilingSampler = new ProfilingSampler(profilerTag);
@@ -64,7 +63,7 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
 
             renderPassEvent = evt;
 
-            m_MainLightShadowmap.Init("_ZorroShadowmapTexture");
+            m_MainLightShadowmap.Init("posm_ShadowMap");
 
             m_FilteringSettings = new FilteringSettings(renderQueueRange, layerMask);
             m_RenderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
@@ -92,15 +91,16 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
             GameObject obj = GameObject.FindGameObjectWithTag("ShadowCamera");
             if (null == obj)
                 return;
-            m_ShadowCamera = obj.GetComponent<Camera>();
-
+            m_ShadowCamera = obj.GetComponent<Camera>();            
             if (null == m_ShadowCamera)
                 return;
+            if(m_ShadowCamera.enabled)
+                m_ShadowCamera.enabled = false;
 
             m_MainLightShadowmapTexture = RenderTexture.GetTemporary(s_shadowmap_size/2, s_shadowmap_size/2, k_ShadowmapBufferBits, RenderTextureFormat.R16);
             m_MainLightShadowmapTexture.filterMode =  FilterMode.Bilinear;
             m_MainLightShadowmapTexture.wrapMode = TextureWrapMode.Clamp;
-            m_MainLightShadowmapTexture.name = "Shadowmap";
+            m_MainLightShadowmapTexture.name = "_posm_ShadowMap";
             ConfigureTarget(new RenderTargetIdentifier(m_MainLightShadowmapTexture));            
             ConfigureClear(ClearFlag.All, Color.black);
         }
@@ -114,15 +114,10 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
             if (null == m_ShadowCamera)
                 return;
 
-            _MatrixWorldToShadow = m_ShadowCamera.projectionMatrix * m_ShadowCamera.worldToCameraMatrix;
-
-            Camera camera = renderingData.cameraData.camera;            
-            
-
+            _MatrixWorldToShadow = m_ShadowCamera.projectionMatrix * m_ShadowCamera.worldToCameraMatrix;                                  
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
             using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
-
                 cmd.SetGlobalMatrix(_CustomWorldToShadowID, _MatrixWorldToShadow);
                 cmd.SetGlobalVector(_CustomShadowParams, _ShadowParams);
                 //change view projection matrix using cmd buffer
@@ -160,8 +155,6 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
             }
         }
     }
-
-
 }
 
 
