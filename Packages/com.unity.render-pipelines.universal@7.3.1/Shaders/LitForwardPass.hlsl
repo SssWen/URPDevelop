@@ -108,7 +108,7 @@ Varyings LitPassVertex(Attributes input)
 
     OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
     OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
-
+	
     output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 
 #if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
@@ -139,6 +139,7 @@ half4 LitPassFragment(Varyings input) : SV_Target
     half4 color = UniversalFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha);
 
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
+	//color.rgb = input.vertexSH;
     return color;
 }
 

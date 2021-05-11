@@ -11,10 +11,11 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
     {
         [Range(0, 0.01f)]
         [SerializeField]
-        public float ShadowBias = 0.0005f;
-        public Color ShadowColor = Color.grey;
-        public LayerMask OpaqueLayerMask;
-        public LayerMask TransparentLayerMask;
+        public float ShadowBias = 0.0f;
+        public float DepthBias = 0.0f;
+        public float DepthSlopeBias = -0.005f;
+        
+        public LayerMask OpaqueLayerMask;        
         public Material DepthMaterial;
     }
     NN4ShadowmapPass m_NN4ShadowmapPass;
@@ -23,9 +24,7 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
 
     public override void Create()
     {
-        m_NN4ShadowmapPass = new NN4ShadowmapPass("NN4Camera.Render.Shadowmap", RenderPassEvent.BeforeRenderingShadows, RenderQueueRange.opaque, m_Settings.OpaqueLayerMask);
-        m_NN4ShadowmapPass._ShadowParams = m_Settings.ShadowColor;
-        m_NN4ShadowmapPass._ShadowParams.w = m_Settings.ShadowBias;
+        m_NN4ShadowmapPass = new NN4ShadowmapPass("NN4Camera.Render.Shadowmap", RenderPassEvent.BeforeRenderingShadows, RenderQueueRange.opaque, m_Settings.OpaqueLayerMask);                
         m_NN4ShadowmapPass.Settings = m_Settings;
     }
 
@@ -45,37 +44,25 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
         RenderStateBlock m_RenderStateBlock;
         Camera m_ShadowCamera;
 
-        RenderTargetHandle m_MainLightShadowmap;
-        RenderTexture m_MainLightShadowmapTexture;
-
-        public static int _CustomWorldToShadowID;
-        public static int _CustomShadowParams;
+        RenderTargetHandle m_NN4Shadowmap;
+        RenderTexture m_NN4ShadowmapTexture;
         Matrix4x4 _MatrixWorldToShadow;
-        public Vector4 _ShadowParams;
+        
 
         public NN4ShadowmapFeatureSettings Settings;
         public NN4ShadowmapPass(string profilerTag, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask)//, StencilState stencilState, int stencilReference)
-        {
+        {            
             m_ProfilerTag = profilerTag;
             m_ProfilingSampler = new ProfilingSampler(profilerTag);
 
-            m_ShaderTagIdList.Add(new ShaderTagId("ShadowCaster"));
+            m_ShaderTagIdList.Add(new ShaderTagId("UniversalForward"));
 
             renderPassEvent = evt;
 
-            m_MainLightShadowmap.Init("posm_ShadowMap");
+            m_NN4Shadowmap.Init("posm_ShadowMap");
 
             m_FilteringSettings = new FilteringSettings(renderQueueRange, layerMask);
-            m_RenderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
-
-            //if (stencilState.enabled)
-            //{
-            //    m_RenderStateBlock.stencilReference = stencilReference;
-            //    m_RenderStateBlock.mask = RenderStateMask.Stencil;
-            //    m_RenderStateBlock.stencilState = stencilState;
-            //}
-            _CustomWorldToShadowID = Shader.PropertyToID("_ZorroShadowMatrix");
-            _CustomShadowParams = Shader.PropertyToID("_ZorroShadowParams");            
+            m_RenderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);          
         }
 
         const int k_ShadowmapBufferBits = 32;
@@ -91,17 +78,17 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
             GameObject obj = GameObject.FindGameObjectWithTag("ShadowCamera");
             if (null == obj)
                 return;
-            m_ShadowCamera = obj.GetComponent<Camera>();            
+            m_ShadowCamera = obj.GetComponent<Camera>();
             if (null == m_ShadowCamera)
                 return;
             if(m_ShadowCamera.enabled)
                 m_ShadowCamera.enabled = false;
 
-            m_MainLightShadowmapTexture = RenderTexture.GetTemporary(s_shadowmap_size/2, s_shadowmap_size/2, k_ShadowmapBufferBits, RenderTextureFormat.R16);
-            m_MainLightShadowmapTexture.filterMode =  FilterMode.Bilinear;
-            m_MainLightShadowmapTexture.wrapMode = TextureWrapMode.Clamp;
-            m_MainLightShadowmapTexture.name = "_posm_ShadowMap";
-            ConfigureTarget(new RenderTargetIdentifier(m_MainLightShadowmapTexture));            
+            m_NN4ShadowmapTexture = RenderTexture.GetTemporary(s_shadowmap_size/2, s_shadowmap_size/2, k_ShadowmapBufferBits, RenderTextureFormat.R16);
+            m_NN4ShadowmapTexture.filterMode =  FilterMode.Bilinear;
+            m_NN4ShadowmapTexture.wrapMode = TextureWrapMode.Clamp;
+            m_NN4ShadowmapTexture.name = "posm_ShadowMap";
+            ConfigureTarget(new RenderTargetIdentifier(m_NN4ShadowmapTexture));
             ConfigureClear(ClearFlag.All, Color.black);
         }
 
@@ -112,17 +99,24 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             if (null == m_ShadowCamera)
-                return;
-
-            _MatrixWorldToShadow = m_ShadowCamera.projectionMatrix * m_ShadowCamera.worldToCameraMatrix;                                  
+                return;            
+//            Debug.Log(renderingData.cameraData.camera.name);            
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
             using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
-                cmd.SetGlobalMatrix(_CustomWorldToShadowID, _MatrixWorldToShadow);
-                cmd.SetGlobalVector(_CustomShadowParams, _ShadowParams);
-                //change view projection matrix using cmd buffer
+                // TODO: move-out update.
+                Shader.SetGlobalFloat("_ShadowBias", 0.0f);
+                Shader.SetGlobalFloat("_DepthSlopeBias", -0.005f);
+                Shader.SetGlobalFloat("_DepthBias", 0.0f);
+                Shader.SetGlobalColor("_TestColor", new Color(0.8f,0,0,1));
+                Shader.SetGlobalMatrix("POSM_MATRIX_V", m_ShadowCamera.worldToCameraMatrix);
+                var matrix = GL.GetGPUProjectionMatrix(m_ShadowCamera.projectionMatrix, false) * m_ShadowCamera.worldToCameraMatrix;
+                Shader.SetGlobalMatrix("POSM_MATRIX_VP", matrix);                
+                Shader.SetGlobalVector("posm_Parameters", new Vector4(1, 1000, 0.00098f, 0.00391f));
+                Shader.SetGlobalVector("posm_ShadowCamera_Parameter", new Vector4(0.01f, 1.70942f, 0.58844f, -0.00588f));
+
                 cmd.SetViewProjectionMatrices(m_ShadowCamera.worldToCameraMatrix, m_ShadowCamera.projectionMatrix);
-                context.ExecuteCommandBuffer(cmd);
+                context.ExecuteCommandBuffer(cmd);                
                 cmd.Clear();
 
                 var sortFlags = renderingData.cameraData.defaultOpaqueSortFlags;
@@ -135,8 +129,7 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
 //                cmd.ClearRenderTarget(true, false, Color.clear);
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref m_RenderStateBlock);
 
-                cmd.SetGlobalTexture(m_MainLightShadowmap.id, m_MainLightShadowmapTexture);
-                //cmd.SetGlobalMatrix(_CustomWorldToShadowID, _MatrixWorldToShadow);
+                Shader.SetGlobalTexture(m_NN4Shadowmap.id, m_NN4ShadowmapTexture);                
             }
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
@@ -148,10 +141,10 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
             if (cmd == null)
                 throw new ArgumentNullException("cmd");
 
-            if (m_MainLightShadowmapTexture)
+            if (m_NN4ShadowmapTexture)
             {
-                RenderTexture.ReleaseTemporary(m_MainLightShadowmapTexture);
-                m_MainLightShadowmapTexture = null;
+                RenderTexture.ReleaseTemporary(m_NN4ShadowmapTexture);
+                m_NN4ShadowmapTexture = null;
             }
         }
     }

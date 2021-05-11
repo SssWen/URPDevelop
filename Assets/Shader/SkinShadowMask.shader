@@ -75,12 +75,13 @@
             {
                 // sample the texture
                 half2 uv = i.shadowPos.xy/2+0.5; // convert to [0,1]                        
-                float depth = max(i.shadowPos.z,0.001) - 0.001;                                
+                float depth = max(i.shadowPos.z,0.001) - 0.001;
                 half3 uvw = half3(uv.xy, depth);
                 // float width = 1024;             
                 // float dx = 1.0 / width;   // w = 0.00391 = 4 * 1 / 1024; dx = 4.0 / width;
                 // float dy = 1.0 / width;                                
-                float width = posm_Parameters.w*0.25;
+                //float width = posm_Parameters.w*0.25;
+                float width = 0.00391*0.25;
                 float dx =  width;   // w = 0.00391 = 4 * 1 / 1024; dx = 4.0 / width;
                 float dy =  width;                
                 half2 offsets_0[4] ={half2(-dx,dy), half2(dx,dy), half2(-dx,-dy), half2(dx,-dy)};                

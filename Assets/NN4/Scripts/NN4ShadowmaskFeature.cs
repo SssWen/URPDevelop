@@ -11,8 +11,7 @@ public class NN4ShadowmaskFeature : ScriptableRendererFeature
     {
         [Range(0, 0.01f)]
         [SerializeField]
-        public float ShadowBias = 0.0005f;
-        public Color ShadowColor = Color.grey;
+        public float DepthBias = 0.0f;
         public LayerMask OpaqueLayerMask;        
         public Material SkinShadowMask;
     }
@@ -23,8 +22,6 @@ public class NN4ShadowmaskFeature : ScriptableRendererFeature
     public override void Create()
     {
         m_NN4ShadowmaskPass = new NN4ShadowmaskPass("NN4MainCamera.Render.Shadowmask", RenderPassEvent.BeforeRenderingPrepasses, RenderQueueRange.opaque, m_Settings.OpaqueLayerMask);
-        m_NN4ShadowmaskPass._ShadowParams = m_Settings.ShadowColor;
-        m_NN4ShadowmaskPass._ShadowParams.w = m_Settings.ShadowBias;
         m_NN4ShadowmaskPass.Settings = m_Settings;
     }
 
@@ -45,36 +42,25 @@ public class NN4ShadowmaskFeature : ScriptableRendererFeature
         Camera m_MainCamera;
 
         RenderTargetHandle m_NN4Shadowmask;
-        RenderTexture m_NN4ShadowmaskTexture;
-
-        public static int _CustomWorldToShadowID;
-        public static int _CustomShadowParams;
-        Matrix4x4 _MatrixWorldToShadow;
-        public Vector4 _ShadowParams;
+        RenderTexture m_NN4ShadowmaskTexture;        
 
         public NN4ShadowmaskFeatureSettings Settings;
-        public NN4ShadowmaskPass(string profilerTag, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask)//, StencilState stencilState, int stencilReference)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="profilerTag">FrameDebugName</param>
+        /// <param name="evt"></param>
+        /// <param name="renderQueueRange"></param>
+        /// <param name="layerMask"></param>
+        public NN4ShadowmaskPass(string profilerTag, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask)
         {
             m_ProfilerTag = profilerTag;
             m_ProfilingSampler = new ProfilingSampler(profilerTag);
-
-            m_ShaderTagIdList.Add(new ShaderTagId("ShadowCaster"));
-
+            m_ShaderTagIdList.Add(new ShaderTagId("UniversalForward"));
             renderPassEvent = evt;
-
             m_NN4Shadowmask.Init("posm_ShadowMaskSkin");
-
             m_FilteringSettings = new FilteringSettings(renderQueueRange, layerMask);
-            m_RenderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);
-
-            //if (stencilState.enabled)
-            //{
-            //    m_RenderStateBlock.stencilReference = stencilReference;
-            //    m_RenderStateBlock.mask = RenderStateMask.Stencil;
-            //    m_RenderStateBlock.stencilState = stencilState;
-            //}
-            _CustomWorldToShadowID = Shader.PropertyToID("_ZorroShadowMatrix");
-            _CustomShadowParams = Shader.PropertyToID("_ZorroShadowParams");            
+            m_RenderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);                                    
         }
 
         const int k_ShadowmapBufferBits = 32;
@@ -95,11 +81,11 @@ public class NN4ShadowmaskFeature : ScriptableRendererFeature
                 m_MainCamera = obj.GetComponent<Camera>();                
             }
 
-            m_NN4ShadowmaskTexture = RenderTexture.GetTemporary(s_shadowmask_size/2, s_shadowmask_size/2, k_ShadowmapBufferBits, RenderTextureFormat.R16);
-            m_NN4ShadowmaskTexture.filterMode =  FilterMode.Bilinear;
-            m_NN4ShadowmaskTexture.wrapMode = TextureWrapMode.Clamp;
-            m_NN4ShadowmaskTexture.name = "_posm_ShadowMaskSkin";
-            ConfigureTarget(new RenderTargetIdentifier(m_NN4ShadowmaskTexture));            
+            m_NN4ShadowmaskTexture = RenderTexture.GetTemporary(s_shadowmask_size/2, s_shadowmask_size/2, k_ShadowmapBufferBits, RenderTextureFormat.RHalf);
+//            m_NN4ShadowmaskTexture.filterMode =  FilterMode.Bilinear;
+//            m_NN4ShadowmaskTexture.wrapMode = TextureWrapMode.Clamp;
+            m_NN4ShadowmaskTexture.name = "posm_ShadowMaskSkin";
+            ConfigureTarget(new RenderTargetIdentifier(m_NN4ShadowmaskTexture));
             ConfigureClear(ClearFlag.All, Color.white);
         }
 
@@ -111,47 +97,33 @@ public class NN4ShadowmaskFeature : ScriptableRendererFeature
         {
             if (null == m_MainCamera)
                 return;
-
-            _MatrixWorldToShadow = m_MainCamera.projectionMatrix * m_MainCamera.worldToCameraMatrix;                                  
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
             using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
-                cmd.SetGlobalMatrix(_CustomWorldToShadowID, _MatrixWorldToShadow);
-                cmd.SetGlobalVector(_CustomShadowParams, _ShadowParams);
-                //change view projection matrix using cmd buffer
-                cmd.SetViewProjectionMatrices(m_MainCamera.worldToCameraMatrix, m_MainCamera.projectionMatrix);
-                context.ExecuteCommandBuffer(cmd);
-                cmd.Clear();
-
                 var sortFlags = renderingData.cameraData.defaultOpaqueSortFlags;
                 var drawSettings = CreateDrawingSettings(m_ShaderTagIdList, ref renderingData, sortFlags);
                 drawSettings.overrideMaterial = Settings.SkinShadowMask;
                 var filterSettings = m_FilteringSettings;
-
-                ////only clear depth buffer here
-                ///  Clear Depth, Clear Color
-//                cmd.ClearRenderTarget(true, false, Color.clear);
+                Shader.SetGlobalTexture(m_NN4Shadowmask.id, m_NN4ShadowmaskTexture);
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref m_RenderStateBlock);
-
-                cmd.SetGlobalTexture(m_NN4Shadowmask.id, m_NN4ShadowmaskTexture);
-                //cmd.SetGlobalMatrix(_CustomWorldToShadowID, _MatrixWorldToShadow);
+                
             }
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }
 
         /// Cleanup any allocated resources that were created during the execution of this render pass.
-        public override void FrameCleanup(CommandBuffer cmd)
-        {
-            if (cmd == null)
-                throw new ArgumentNullException("cmd");
+       public override void FrameCleanup(CommandBuffer cmd)
+       {
+           if (cmd == null)
+               throw new ArgumentNullException("cmd");
 
-            if (m_NN4ShadowmaskTexture)
-            {
-                RenderTexture.ReleaseTemporary(m_NN4ShadowmaskTexture);
-                m_NN4ShadowmaskTexture = null;
-            }
-        }
+           if (m_NN4ShadowmaskTexture)
+           {
+               RenderTexture.ReleaseTemporary(m_NN4ShadowmaskTexture);
+               m_NN4ShadowmaskTexture = null;
+           }
+       }
     }
 }
 

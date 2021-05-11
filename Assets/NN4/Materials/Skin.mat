@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Skin
+  m_Shader: {fileID: 4800000, guid: 60414f822383af14796908e6dd38bbaa, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _LUTTex:
+        m_Texture: {fileID: 2800000, guid: 526abc6b32570f844ac8f58add53ef97, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: a045a51ff794cc842b9a0f91d0ddbced, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTexBase:
+        m_Texture: {fileID: 2800000, guid: a045a51ff794cc842b9a0f91d0ddbced, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: 55a6920a3b73d004992a48d9cbf6efdb, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecularTex:
+        m_Texture: {fileID: 2800000, guid: 9fe5b30ea6bb3de48bec21566c51d1e0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _DepthStrength: 1
+    - _DeptheBias: 0
+    - _ExtraShadeRange: 0.6
+    - _Fresnel: 0.124
+    - _ShadowIntensity: 1.48
+    m_Colors:
+    - _NN4AmbientTint: {r: 1, g: 1, b: 1, a: 1}
+    - _NN4Char_LightColor1: {r: 0.31, g: 0.31, b: 0.31, a: 1}
+    - _NN4Char_LightColor2: {r: 5.41, g: 5.41, b: 5.41, a: 1}
+    - _NN4Char_LightDir1: {r: -0.27025, g: 0.4524, b: 0.84986, a: 1}
+    - _NN4Char_LightDir2: {r: 0.72, g: 0.369, b: -0.582, a: 1}
+    - _ShadeColor: {r: 0.91, g: 0.636, b: 0.636, a: 1}
+    - _ShadowColor: {r: 0.47, g: 0.31, b: 0.4, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}

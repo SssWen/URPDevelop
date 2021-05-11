@@ -1,6 +1,6 @@
 // Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-Shader "NN/URPSkin"
+Shader "NN/URP_Skin"
 {
     Properties
     {
@@ -39,18 +39,14 @@ Shader "NN/URPSkin"
         // Angle = (6.3,180,0)
         Pass
         {
-            Cull Back
-            CGPROGRAM
+			Tags { "LightMode"="UniversalForward" }
+			HLSLPROGRAM
+             #pragma target 3.0
+          
             #pragma vertex vert
             #pragma fragment frag
-                        
-            #include "UnityCG.cginc"
-                      
-            #include "AutoLight.cginc"
-            #include "Lighting.cginc"
-            #include "UnityPBSLighting.cginc"
-            #include "UnityStandardBRDF.cginc"
-            #define UNITY_INV_PI 1/3.14
+            #define UNITY_INV_PI 1/3.14            
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"            
             struct appdata
             {
                 float4 vertex  : POSITION;
@@ -72,7 +68,7 @@ Shader "NN/URPSkin"
             };
             
             TEXTURE2D(_MainTexBase);    SAMPLER(sampler_MainTexBase);
-            TEXTURE2D(_ShadowMaskSkin);    SAMPLER(sampler_ShadowMaskSkin);
+            TEXTURE2D(posm_ShadowMaskSkin);    SAMPLER(sampler_posm_ShadowMaskSkin);
             TEXTURE2D(_NormalMap);    SAMPLER(sampler_NormalMap);
             TEXTURE2D(_LUTTex);    SAMPLER(sampler_LUTTex);
             TEXTURE2D(_SpecularTex);    SAMPLER(sampler_SpecularTex);
@@ -145,7 +141,7 @@ Shader "NN/URPSkin"
 				o.TtoW2 = float4(worldTangent.z, worldBinormal.z, worldNormal.z, worldPos.z);  
                
                 //float3 shlight = ShadeSH9 (float4(worldNormal, 1.0));
-                float3 shlight = SampleSH(worldNormal);
+                float3 shlight = SampleSHVertex(worldNormal);
                 o.shlight = shlight;
                 //o.Test.xyz = v.tangent.xyz;
                 return o;
@@ -153,6 +149,7 @@ Shader "NN/URPSkin"
 
             float4 frag (v2f i) : SV_Target
             {
+			return float4(i.shlight,1);
                 //前置统一处理  皮肤后期线性转暖暖gama后期处理
 #if !defined(UNITY_NO_LINEAR_COLORSPACE)
     _NN4Char_LightColor1 = pow(_NN4Char_LightColor1,0.45);
@@ -161,7 +158,7 @@ Shader "NN/URPSkin"
                 //前置统一处理done   
 
                 float3 baseColor = SAMPLE_TEXTURE2D(_MainTexBase, sampler_MainTexBase,i.uv).xyz;
-                //float3 baseColor = tex2D(_MainTexBase, i.uv);
+                
                 float3 _BaseColor = baseColor*baseColor;
                 float3 worldPos = float3(i.TtoW0.w, i.TtoW1.w, i.TtoW2.w);
                 float3 worldViewDir = normalize(_WorldSpaceCameraPos.xyz - worldPos);
@@ -176,7 +173,7 @@ Shader "NN/URPSkin"
                 float ndotv = max(dot(worldNormal,worldViewDir), 0);                
                 
                 float4 funcTex = SAMPLE_TEXTURE2D(_SpecularTex,sampler_SpecularTex, i.uv.xy);
-                float roughness = funcTex.x;
+                
                 funcTex.z = 1 - funcTex.z;
                 
                 float roughness = (1- funcTex.x)*(1-funcTex.x);
@@ -184,7 +181,8 @@ Shader "NN/URPSkin"
                 half perceptualRoughness = roughness;
                                               
                 float3 IndirectSpecular = GlossyEnvironmentReflection(R,perceptualRoughness,1);                
-                IndirectSpecular = IndirectSpecular * _NN4AmbientTint;                            
+                IndirectSpecular = IndirectSpecular * _NN4AmbientTint;
+				
                 float3 fresnel = FresnelLerpNN2(_Fresnel,ndotv);
                 IndirectSpecular = IndirectSpecular * fresnel* i.shlight;      				
                 
@@ -193,7 +191,7 @@ Shader "NN/URPSkin"
                 float F = lerp(_Fresnel,1,1-max(ndotv,0));                
                 float3 SpecularColor = D*F*_NN4Char_LightColor1.xyz + IndirectSpecular;
                 SpecularColor = SpecularColor *_SpecularColor;
-
+				
                 float ndotl_1 = dot(worldNormal,_NN4Char_LightDir1);
                 float ndotl_2 = dot(worldNormal,_NN4Char_LightDir2);
 
@@ -204,14 +202,15 @@ Shader "NN/URPSkin"
                 float3 _LightColor2 = ndotl_2 * _NN4Char_LightColor2 * _BaseColor;                
                 _LightColor2 = _LightColor2*_mask;
                 _LightColor2 = _LightColor2 / (_LightColor2+1);
-          
-                // float depth = tex2D(posm_ShadowMaskSkin, i.uv.zw);
+                          
                 float depth = SAMPLE_TEXTURE2D(posm_ShadowMaskSkin,sampler_posm_ShadowMaskSkin, i.uv.zw);
                 float depthTemp = saturate(_ShadowIntensity*(depth - 1) + 1);
 				depth = depthTemp - 1;
+				depth = 0;
                 ndotl_1 = depth/4 + ndotl_1;
                 ndotl_1 = ndotl_1 * 0.5 + 0.5;                 
-                float3 _LUTColor = tex2D(_LUTTex,float2(ndotl_1, funcTex.y));
+                //float3 _LUTColor = tex2D(_LUTTex,float2(ndotl_1, funcTex.y));
+				float3 _LUTColor = SAMPLE_TEXTURE2D(_LUTTex,sampler_LUTTex,float2(ndotl_1, funcTex.y));
                 
                 float3 _FinalShadowColor = _LUTColor * lerp(_ShadowColor.xyz, half3(1,1,1), depthTemp);                
 
@@ -219,12 +218,14 @@ Shader "NN/URPSkin"
                 _FinalShadowColor = _BaseColor * _FinalShadowColor + _LightColor2;                            
                 // 厚度图
                 float ndotVRange =  min(ndotv / _ExtraShadeRange,1) - 1;
-                ndotVRange = ndotVRange * funcTex.z + 1; 
-                float3 _lerpShadeColor = lerp(_ShadeColor,1,ndotVRange);                                
-                float3 finalColor = _FinalShadowColor * _lerpShadeColor + SpecularColor;               
-                return float4(finalColor, 1);
+                ndotVRange = ndotVRange * funcTex.z + 1;
+                float3 _lerpShadeColor = lerp(_ShadeColor,1,ndotVRange);
+                float3 finalColor = _FinalShadowColor * _lerpShadeColor + SpecularColor;
+				//finalColor = float3(1,0,0);
+                return float4(i.shlight*6, 1);
+                //return float4(finalColor, 1);
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

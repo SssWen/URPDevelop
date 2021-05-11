@@ -461,7 +461,7 @@ Shader "CustomURP/Skin_URP"
 
                 _FinalShadowColor = _FinalShadowColor * _NN4Char_LightColor1 + i.shlight;                
                 _FinalShadowColor = albedoColor * _FinalShadowColor + _LightColor2;
-            
+             
                 // 厚度图
                 float ndotVRange =  min(ndotv / _ExtraShadeRange,1) - 1;
                 ndotVRange = ndotVRange * funcTex.z + 1; 

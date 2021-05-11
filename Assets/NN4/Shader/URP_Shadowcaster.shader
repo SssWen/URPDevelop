@@ -64,8 +64,7 @@
 
             half4 frag(Varyings input) : SV_Target
             {          
-				half4 col = input.uv.x + input.uv.y;				
-				col.r = input.uv.z;
+				half4 col = input.uv.x + input.uv.y;
                 return col;
             }
             ENDHLSL

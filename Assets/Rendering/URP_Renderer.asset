@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-2856268033728935104
+--- !u!114 &-4159569795947473531
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,39 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5141fe3e69e7d8f4dbd8fcd7bcf95d10, type: 3}
-  m_Name: NN4ShadowmaskFeature
+  m_Name: NewNN4ShadowmaskFeature
   m_EditorClassIdentifier: 
   m_Active: 1
   m_Settings:
-    ShadowBias: 0.0005
-    ShadowColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    DepthBias: 0
     OpaqueLayerMask:
       serializedVersion: 2
       m_Bits: 4294967295
     SkinShadowMask: {fileID: 2100000, guid: 3d33a68fdd447fb4a9189eacc491d695, type: 2}
---- !u!114 &-598378738213941459
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93d6146e2fe0ac54fbffe31da1c9efda, type: 3}
-  m_Name: NN4ShadowmapFeature
-  m_EditorClassIdentifier: 
-  m_Active: 1
-  m_Settings:
-    ShadowBias: 0.0005
-    ShadowColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    OpaqueLayerMask:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    TransparentLayerMask:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    DepthMaterial: {fileID: 2100000, guid: b853803b9407deb46ad88e291424afca, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56,9 +32,9 @@ MonoBehaviour:
   m_Name: URP_Renderer
   m_EditorClassIdentifier: 
   m_RendererFeatures:
-  - {fileID: -598378738213941459}
-  - {fileID: -2856268033728935104}
-  m_RendererFeatureMap: 2d8f9c3bb521b2f7408b48425b7f5cd8
+  - {fileID: 7942397972814605887}
+  - {fileID: -4159569795947473531}
+  m_RendererFeatureMap: 3fae652ae010396e85551b164f3d46c6
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   shaders:
     blitPS: {fileID: 4800000, guid: c17132b1f77d20942aa75f8429c0f8bc, type: 3}
@@ -81,3 +57,24 @@ MonoBehaviour:
     failOperation: 0
     zFailOperation: 0
   m_ShadowTransparentReceive: 1
+--- !u!114 &7942397972814605887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93d6146e2fe0ac54fbffe31da1c9efda, type: 3}
+  m_Name: NewNN4ShadowmapFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  m_Settings:
+    ShadowBias: 0
+    DepthBias: 0
+    DepthSlopeBias: -0.005
+    OpaqueLayerMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    DepthMaterial: {fileID: 2100000, guid: b853803b9407deb46ad88e291424afca, type: 2}
