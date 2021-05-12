@@ -15,7 +15,7 @@ Shader "NN/URP_Skin"
         _ShadowIntensity ("阴影浓度",Range(0, 3)) = 1.48
         _ExtraShadeRange ("附加阴影范围",Range(0, 1)) = 1.0
 
-        // 外部传入
+        
         _NN4AmbientTint ("NN4AmbientTint[环境光]",Color) = (1,1,1,1)
         _NN4Char_LightColor1 ("NN4Char_LightColor1",Color) = (0.31,0.31,0.31,1)
         [HDR]_NN4Char_LightColor2 ("NN4Char_LightColor2",Color) = (5.419,5.419,5.419,1)
@@ -63,7 +63,7 @@ Shader "NN/URP_Skin"
 			    float4 TtoW1  : TEXCOORD2;  
 			    float4 TtoW2  : TEXCOORD3;
 			    float3 shlight: TEXCOORD4;
-			    //float4 Test: TEXCOORD5;
+			    // float4 Test: TEXCOORD5;
 			    
             };
             
@@ -129,7 +129,7 @@ Shader "NN/URP_Skin"
 				o.TtoW1 = float4(worldTangent.y, worldBinormal.y, worldNormal.y, worldPos.y);  
 				o.TtoW2 = float4(worldTangent.z, worldBinormal.z, worldNormal.z, worldPos.z);  
                
-                //float3 shlight = ShadeSH9 (float4(worldNormal, 1.0));
+                // float3 shlight = ShadeSH9 (float4(worldNormal, 1.0));
                 float3 shlight = SampleSHVertex(worldNormal);
                 o.shlight = shlight;
                 //o.Test.xyz = v.tangent.xyz;
@@ -140,9 +140,9 @@ Shader "NN/URP_Skin"
             {			                
             #if !defined(UNITY_NO_LINEAR_COLORSPACE)
                 _NN4Char_LightColor1 = pow(_NN4Char_LightColor1,0.45);
-                i.shlight = pow(i.shlight,0.45);  
+                i.shlight = pow(i.shlight,0.45);                  
             #endif                
-
+                return float4(i.shlight,1);
                 float3 baseColor = SAMPLE_TEXTURE2D(_MainTexBase, sampler_MainTexBase,i.uv).xyz;
                 
                 float3 _BaseColor = baseColor*baseColor;
