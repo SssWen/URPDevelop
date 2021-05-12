@@ -8,10 +8,10 @@ Shader "NN/URP_Skin"
         _ShadowColor ("ShadowColor",Color) = (0.47,0.31,0.40,1)
         _ShadeColor ("ShadeColor",Color) = (0.91,0.636,0.636,1)
         _SpecularColor ("高光颜色",Color) = (1,1,1,1)        
-        _SpecularTex ("光滑�?(R) 曲率(G) 附加阴影(B)", 2D) = "white" {}  // R G B ,其中R通道是粗糙度 G 通道是厚度�? B AO�?
+        _SpecularTex ("光滑�?(R) 曲率(G) 附加阴影(B)", 2D) = "white" {}  // R G B ,其中R通道是粗糙度 G 通道是厚度�? B AO�?
         _NormalMap ("Normal Map", 2D) = "bump" {}
         _LUTTex ("BRDF Lookup(RGB)", 2D) = "gray" {}
-        _Fresnel ("菲涅�?",Range(0, 1)) = 0.124        
+        _Fresnel ("菲涅�?",Range(0, 1)) = 0.124        
         _ShadowIntensity ("阴影浓度",Range(0, 3)) = 1.48
         _ExtraShadeRange ("附加阴影范围",Range(0, 1)) = 1.0
 
@@ -137,12 +137,13 @@ Shader "NN/URP_Skin"
             }
 
             float4 frag (v2f i) : SV_Target
-            {			                
+            {		
+                // return float4(i.shlight,1);
             #if !defined(UNITY_NO_LINEAR_COLORSPACE)
                 _NN4Char_LightColor1 = pow(_NN4Char_LightColor1,0.45);
                 i.shlight = pow(i.shlight,0.45);                  
             #endif                
-                return float4(i.shlight,1);
+                // return float4(i.shlight,1);
                 float3 baseColor = SAMPLE_TEXTURE2D(_MainTexBase, sampler_MainTexBase,i.uv).xyz;
                 
                 float3 _BaseColor = baseColor*baseColor;
