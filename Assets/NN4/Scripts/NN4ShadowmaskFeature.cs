@@ -63,7 +63,7 @@ public class NN4ShadowmaskFeature : ScriptableRendererFeature
             m_RenderStateBlock = new RenderStateBlock(RenderStateMask.Nothing);                                    
         }
 
-        const int k_ShadowmapBufferBits = 32;
+        const int k_ShadowmaskBufferBits = 32;
         const int s_shadowmask_size = 2048;
 
         // This method is called before executing the render pass.
@@ -81,9 +81,9 @@ public class NN4ShadowmaskFeature : ScriptableRendererFeature
                 m_MainCamera = obj.GetComponent<Camera>();                
             }
 
-            m_NN4ShadowmaskTexture = RenderTexture.GetTemporary(s_shadowmask_size/2, s_shadowmask_size/2, k_ShadowmapBufferBits, RenderTextureFormat.RHalf);
-//            m_NN4ShadowmaskTexture.filterMode =  FilterMode.Bilinear;
-//            m_NN4ShadowmaskTexture.wrapMode = TextureWrapMode.Clamp;
+            m_NN4ShadowmaskTexture = RenderTexture.GetTemporary(s_shadowmask_size/2, s_shadowmask_size/2, k_ShadowmaskBufferBits, RenderTextureFormat.RHalf);
+            m_NN4ShadowmaskTexture.filterMode =  FilterMode.Bilinear;
+            m_NN4ShadowmaskTexture.wrapMode = TextureWrapMode.Clamp;
             m_NN4ShadowmaskTexture.name = "posm_ShadowMaskSkin";
             ConfigureTarget(new RenderTargetIdentifier(m_NN4ShadowmaskTexture));
             ConfigureClear(ClearFlag.All, Color.white);

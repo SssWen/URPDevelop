@@ -8,10 +8,10 @@ Shader "NN/URP_Skin"
         _ShadowColor ("ShadowColor",Color) = (0.47,0.31,0.40,1)
         _ShadeColor ("ShadeColor",Color) = (0.91,0.636,0.636,1)
         _SpecularColor ("高光颜色",Color) = (1,1,1,1)        
-        _SpecularTex ("光滑度(R) 曲率(G) 附加阴影(B)", 2D) = "white" {}  // R G B ,其中R通道是粗糙度 G 通道是厚度值 B AO图
+        _SpecularTex ("光滑�?(R) 曲率(G) 附加阴影(B)", 2D) = "white" {}  // R G B ,其中R通道是粗糙度 G 通道是厚度�? B AO�?
         _NormalMap ("Normal Map", 2D) = "bump" {}
         _LUTTex ("BRDF Lookup(RGB)", 2D) = "gray" {}
-        _Fresnel ("菲涅尔",Range(0, 1)) = 0.124        
+        _Fresnel ("菲涅�?",Range(0, 1)) = 0.124        
         _ShadowIntensity ("阴影浓度",Range(0, 3)) = 1.48
         _ExtraShadeRange ("附加阴影范围",Range(0, 1)) = 1.0
 
@@ -72,17 +72,6 @@ Shader "NN/URP_Skin"
             TEXTURE2D(_NormalMap);    SAMPLER(sampler_NormalMap);
             TEXTURE2D(_LUTTex);    SAMPLER(sampler_LUTTex);
             TEXTURE2D(_SpecularTex);    SAMPLER(sampler_SpecularTex);
-            // sampler2D _MainTexBase;            
-            // float4 _MainTexBase_ST;
-
-            // sampler2D posm_ShadowMaskSkin;
-
-            // sampler2D _NormalMap;            
-            // float4 _NormalMap_ST;
-            // sampler2D _LUTTex;
-            
-            // sampler2D _SpecularTex;
-            // float4 _SpecularTex_ST;
 
             float4 _ShadowColor;
             float4 _ShadeColor;
@@ -148,14 +137,11 @@ Shader "NN/URP_Skin"
             }
 
             float4 frag (v2f i) : SV_Target
-            {
-			return float4(i.shlight,1);
-                //前置统一处理  皮肤后期线性转暖暖gama后期处理
-#if !defined(UNITY_NO_LINEAR_COLORSPACE)
-    _NN4Char_LightColor1 = pow(_NN4Char_LightColor1,0.45);
-    i.shlight = pow(i.shlight,0.45);  
-#endif
-                //前置统一处理done   
+            {			                
+            #if !defined(UNITY_NO_LINEAR_COLORSPACE)
+                _NN4Char_LightColor1 = pow(_NN4Char_LightColor1,0.45);
+                i.shlight = pow(i.shlight,0.45);  
+            #endif                
 
                 float3 baseColor = SAMPLE_TEXTURE2D(_MainTexBase, sampler_MainTexBase,i.uv).xyz;
                 
@@ -195,7 +181,7 @@ Shader "NN/URP_Skin"
                 float ndotl_1 = dot(worldNormal,_NN4Char_LightDir1);
                 float ndotl_2 = dot(worldNormal,_NN4Char_LightDir2);
 
-                ndotl_2 = (ndotl_2+0.5)*0.66666669; // 范围控制在 [-1/3,1]  
+                ndotl_2 = (ndotl_2+0.5)*0.66666669; 
                 ndotl_2 = max(ndotl_2,0);
                 ndotl_2 = pow(ndotl_2,4); 
                 
@@ -205,25 +191,21 @@ Shader "NN/URP_Skin"
                           
                 float depth = SAMPLE_TEXTURE2D(posm_ShadowMaskSkin,sampler_posm_ShadowMaskSkin, i.uv.zw);
                 float depthTemp = saturate(_ShadowIntensity*(depth - 1) + 1);
-				depth = depthTemp - 1;
-				depth = 0;
+				depth = depthTemp - 1;				
                 ndotl_1 = depth/4 + ndotl_1;
-                ndotl_1 = ndotl_1 * 0.5 + 0.5;                 
-                //float3 _LUTColor = tex2D(_LUTTex,float2(ndotl_1, funcTex.y));
+                ndotl_1 = ndotl_1 * 0.5 + 0.5;                                 
 				float3 _LUTColor = SAMPLE_TEXTURE2D(_LUTTex,sampler_LUTTex,float2(ndotl_1, funcTex.y));
                 
                 float3 _FinalShadowColor = _LUTColor * lerp(_ShadowColor.xyz, half3(1,1,1), depthTemp);                
 
                 _FinalShadowColor = _FinalShadowColor * _NN4Char_LightColor1 + i.shlight;                
-                _FinalShadowColor = _BaseColor * _FinalShadowColor + _LightColor2;                            
-                // 厚度图
+                _FinalShadowColor = _BaseColor * _FinalShadowColor + _LightColor2;                                            
                 float ndotVRange =  min(ndotv / _ExtraShadeRange,1) - 1;
                 ndotVRange = ndotVRange * funcTex.z + 1;
                 float3 _lerpShadeColor = lerp(_ShadeColor,1,ndotVRange);
-                float3 finalColor = _FinalShadowColor * _lerpShadeColor + SpecularColor;
-				//finalColor = float3(1,0,0);
-                return float4(i.shlight*6, 1);
-                //return float4(finalColor, 1);
+                float3 finalColor = _FinalShadowColor * _lerpShadeColor + SpecularColor;	
+                // return float4(i.shlight*6, 1);
+                return float4(finalColor, 1);
             }
             ENDHLSL
         }

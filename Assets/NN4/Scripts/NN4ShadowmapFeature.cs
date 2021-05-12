@@ -46,8 +46,7 @@ public class NN4ShadowmapFeature : ScriptableRendererFeature
 
         RenderTargetHandle m_NN4Shadowmap;
         RenderTexture m_NN4ShadowmapTexture;
-        Matrix4x4 _MatrixWorldToShadow;
-        
+        Matrix4x4 _MatrixWorldToShadow;        
 
         public NN4ShadowmapFeatureSettings Settings;
         public NN4ShadowmapPass(string profilerTag, RenderPassEvent evt, RenderQueueRange renderQueueRange, LayerMask layerMask)//, StencilState stencilState, int stencilReference)

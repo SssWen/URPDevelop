@@ -62,7 +62,8 @@
             {
                 Varyings output = (Varyings)0;				
 				// half3 worldPos = TransformObjectToWorld(input.vertex.xyz);
-                float4 worldPos = mul(unity_ObjectToWorld, input.vertex);                				
+                float4 worldPos = mul(unity_ObjectToWorld, input.vertex);
+                
 				half4 clipPos = TransformWorldToHClip(worldPos);
 				clipPos.z = clipPos.z - 0.1 * _DepthBias * clipPos.z;
 				output.vertex = clipPos;				

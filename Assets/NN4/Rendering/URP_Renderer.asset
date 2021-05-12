@@ -34,7 +34,8 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: 7942397972814605887}
   - {fileID: -4159569795947473531}
-  m_RendererFeatureMap: 3fae652ae010396e85551b164f3d46c6
+  - {fileID: 21796026978020015}
+  m_RendererFeatureMap: 3fae652ae010396e85551b164f3d46c6af2a8afd5e6f4d00
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   shaders:
     blitPS: {fileID: 4800000, guid: c17132b1f77d20942aa75f8429c0f8bc, type: 3}
@@ -57,6 +58,23 @@ MonoBehaviour:
     failOperation: 0
     zFailOperation: 0
   m_ShadowTransparentReceive: 1
+--- !u!114 &21796026978020015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17145206bc4ac5b46bb1cf5acb454482, type: 3}
+  m_Name: NewNN4GaussBlurFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  m_Settings:
+    blurMat: {fileID: 2100000, guid: 27b3f6b6afa38964d88dffaedbbed59e, type: 2}
+    bloomMat: {fileID: 2100000, guid: a4a03598934057148af190acbafc346a, type: 2}
+    characterMat: {fileID: 2100000, guid: 52454f95bcce6684a8623777f536c07e, type: 2}
 --- !u!114 &7942397972814605887
 MonoBehaviour:
   m_ObjectHideFlags: 0
